@@ -88,6 +88,10 @@ elseif(MSVC)
     add_compile_options(/W3)
 endif()
 
+# One predictable home for the executables (multi-config generators
+# still append their config dir: build/bin/Release on MSVC).
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
+
 # ---- the demo (examples/demo.c) ------------------------------------------
 add_executable(demo examples/demo.c)
 corvid_consumer(demo)

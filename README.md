@@ -33,11 +33,11 @@ Requirements: a C11 compiler, CMake ≥ 3.16, and one of
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ctest --test-dir build --output-on-failure   # the golden suite (256 lines)
-./build/examples/demo                        # open → insert → query → print
+./build/bin/demo                              # open → insert → query → print
 ```
 
 Windows (PowerShell): `./fetch.ps1`, then the same CMake steps
-(`ctest -C Release`; the demo lands in `build\examples\Release\`).
+(`ctest -C Release`; the demo lands in `build\bin\Release\`).
 
 A taste of the API (`examples/demo.c`):
 

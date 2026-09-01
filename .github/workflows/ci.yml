@@ -65,9 +65,9 @@ jobs:
         shell: bash
         run: |
           if [ "$RUNNER_OS" = "Windows" ]; then
-            ./build/examples/Release/demo.exe
+            ./build/bin/Release/demo.exe
           else
-            ./build/examples/demo
+            ./build/bin/demo
           fi
 
   sanitizer:
