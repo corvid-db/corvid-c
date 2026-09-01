@@ -1,0 +1,99 @@
+# ci — the canonical-consumer gate.
+#
+# Per platform: fetch + sha256-verify the pinned release artifacts, build
+# offline against deps/, run the golden-suite port (one ctest per fixture,
+# 256 executable lines total) and the demo. A Linux sanitizer job builds
+# the golden port with ASan+UBSan+LSan — the harness frees every handle
+# on its creation path, so the expectation is zero leaks.
+#
+# The darwin legs carry a KNOWN published-artifact defect: the v0.2.0
+# dylibs' install name is the engine CI's absolute build path, so any
+# consumer linked against them aborts at load (docs/PLAN.md, finding F1).
+# They run with continue-on-error — the red job IS the finding — until
+# the engine ships a fixed tag and CORVID_VERSION is re-pinned.
+
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-test:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.known-defect || false }}
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: ubuntu-x86_64
+            os: ubuntu-latest
+          - name: windows-x86_64
+            os: windows-latest
+          # Visible evidence for finding F1 — expected to fail at dylib
+          # load until the engine re-ships the darwin artifacts. (The
+          # x86_64-darwin archive carries the same defect — proven by the
+          # otool evidence in docs/PLAN.md; macos-13 runners no longer
+          # exist to host that leg.)
+          - name: macos-arm64 (finding F1 — v0.2.0 dylib install name)
+            os: macos-latest
+            known-defect: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch + verify engine artifacts (sha256)
+        if: runner.os != 'Windows'
+        run: ./fetch.sh
+
+      - name: Fetch + verify engine artifacts (sha256)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./fetch.ps1
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      - name: Golden suite + demo (ctest)
+        run: ctest --test-dir build -C Release --output-on-failure
+
+      - name: Run the demo
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            ./build/examples/Release/demo.exe
+          else
+            ./build/examples/demo
+          fi
+
+  sanitizer:
+    # ASan + UBSan + LSan on Linux: the golden port must run the full
+    # suite leak-free (every handle freed on its creation path — the
+    # same zero-leak expectation the engine's sanitized smoke run has).
+    name: sanitizer (linux, asan+lsan)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      ASAN_OPTIONS: detect_leaks=1:halt_on_error=1
+      UBSAN_OPTIONS: halt_on_error=1:print_stacktrace=1
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch + verify engine artifacts (sha256)
+        run: ./fetch.sh
+
+      - name: Configure (sanitized)
+        run: >
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer"
+          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+
+      - name: Build
+        run: cmake --build build --parallel
+
+      - name: Golden suite + demo under sanitizers
+        run: ctest --test-dir build --output-on-failure

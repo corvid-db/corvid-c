@@ -1,0 +1,11 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
+
+Name: corvid
+Description: corvid embedded database - C FFI (engine release @CORVID_VERSION@)
+Version: @CORVID_PC_VERSION@
+URL: https://github.com/i-rocky/corvid
+Libs: -L${libdir} -lcorvid@CORVID_PC_RPATH@
+Cflags: -I${includedir}
