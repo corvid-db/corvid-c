@@ -6,11 +6,8 @@
 # the golden port with ASan+UBSan+LSan — the harness frees every handle
 # on its creation path, so the expectation is zero leaks.
 #
-# The darwin legs carry a KNOWN published-artifact defect: the v0.2.0
-# dylibs' install name is the engine CI's absolute build path, so any
-# consumer linked against them aborts at load (docs/PLAN.md, finding F1).
-# They run with continue-on-error — the red job IS the finding — until
-# the engine ships a fixed tag and CORVID_VERSION is re-pinned.
+# Every leg is required-green: the v0.2.0 darwin install-name defect
+# (docs/PLAN.md, finding F1) was fixed upstream and re-pinned in v0.2.1.
 
 name: ci
 
@@ -22,7 +19,6 @@ jobs:
   build-test:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.known-defect || false }}
     timeout-minutes: 10
     strategy:
       fail-fast: false
@@ -32,14 +28,8 @@ jobs:
             os: ubuntu-latest
           - name: windows-x86_64
             os: windows-latest
-          # Visible evidence for finding F1 — expected to fail at dylib
-          # load until the engine re-ships the darwin artifacts. (The
-          # x86_64-darwin archive carries the same defect — proven by the
-          # otool evidence in docs/PLAN.md; macos-13 runners no longer
-          # exist to host that leg.)
-          - name: macos-arm64 (finding F1 — v0.2.0 dylib install name)
+          - name: macos-arm64
             os: macos-latest
-            known-defect: true
     steps:
       - uses: actions/checkout@v4
 

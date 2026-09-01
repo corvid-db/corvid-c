@@ -28,7 +28,7 @@ CI on all platforms does any wrapper-API work begin.
 ## Binding rules (from the master plan)
 
 - **Pin EXACT engine tags.** One engine version at a time; today it is
-  `v0.2.0`. The pin lives in exactly one variable per fetch script
+  `v0.2.1`. The pin lives in exactly one variable per fetch script
   (`CORVID_VERSION`) and is stamped into `deps/version.txt`; CMake reads
   the stamp, never guesses.
 - **Artifacts come from the tag's GitHub release**, not from a local build
@@ -68,8 +68,8 @@ CI on all platforms does any wrapper-API work begin.
    failure names file:line + OP + expected-vs-got. **Success criterion:
    the same 256/256 green the engine-side suite reports.** This is the
    moment of truth for the published artifacts.
-6. **CI** — `.github/workflows/ci.yml`: an ubuntu/macos(arm64+x86_64)/
-   windows matrix that fetches + verifies, configures, builds, runs ctest
+6. **CI** — `.github/workflows/ci.yml`: an ubuntu/macos-arm64/windows
+   matrix that fetches + verifies, configures, builds, runs ctest
    (golden port) and the demo; plus a Linux sanitizer job building the
    golden port with ASan/LSan (the harness frees every handle on its
    creation path, so the expectation is zero leaks — same as upstream).
@@ -103,7 +103,7 @@ from the engine repo is a finding for the engine repo.
 
 ## Findings against published artifacts
 
-### F1 (blocks darwin legs): v0.2.0 macOS dylibs ship with the CI runner's absolute path as their install name
+### F1 — RESOLVED in v0.2.1 (engine commit edc1bc0): v0.2.0 macOS dylibs shipped with the CI runner's absolute path as their install name
 
 `otool -D` on the release archives:
 
@@ -133,25 +133,26 @@ on the darwin legs, after copying the dylib into the staging dir, set
 `install_name_tool -id @rpath/libcorvid.dylib "$DIR/libcorvid.dylib"`
 (or pass `-C link-arg=-Wl,-install_name,@rpath/libcorvid.dylib` at build).
 
-Handling here, per the binding rules: **no local patching** — corvid-c
-does not run `install_name_tool` on the downloaded artifacts and does not
-hide the failure behind an env var. The darwin CI legs run with
-`continue-on-error` and a name that points here: the red job *is* the
-finding, visible on every run. When the engine ships a fixed tag, re-pin
-`CORVID_VERSION`, drop `continue-on-error`, and delete this note's
-"blocks" clause.
+**Resolution:** the engine landed the fix (commit `edc1bc0`) and shipped
+`v0.2.1`, whose darwin dylibs verify as `@rpath/libcorvid.dylib`
+(`otool -D`, checked on the published aarch64-darwin archive). corvid-c
+re-pinned to `v0.2.1`; the darwin CI leg is required-green again with no
+`continue-on-error` and no env-var help — the golden suite now loads the
+shipped dylib through the baked rpath alone. The evidence above is kept
+verbatim for the record.
 
-(For humans who need v0.2.0 darwin artifacts *today*: the standard
-self-applied mitigation is
+(For humans still holding v0.2.0 darwin artifacts: the standard
+self-applied mitigation was
 `install_name_tool -id @rpath/libcorvid.dylib deps/corvid-ffi-v0.2.0-*/libcorvid.dylib`
-on your own downloaded copy. The repo itself never does this for you.)
+on your own downloaded copy; v0.2.1 needs nothing.)
 
-### F2 (non-blocking): the Linux `.so` has no SONAME
+### F2 — RESOLVED in v0.2.1: the Linux `.so` had no SONAME
 
-`readelf -d libcorvid.so` shows no `SONAME` entry (a long-standing
-rustc/cdylib trait). Consumers linking via a full path record that path
-in `DT_NEEDED`; corvid-c's rpath handling makes this transparent for the
-build tree and the pkg-config file's `-L${libdir} -lcorvid` records the
-basename, so nothing here is blocked — but upstream may want
-`-C link-arg=-Wl,-soname,libcorvid.so` for cleanliness. Noted, not
-blocking.
+`readelf -d libcorvid.so` on v0.2.0 showed no `SONAME` entry (a
+long-standing rustc/cdylib trait). Consumers linking via a full path
+recorded that path in `DT_NEEDED`; corvid-c's rpath handling made it
+transparent for the build tree and the pkg-config file's
+`-L${libdir} -lcorvid` recorded the basename, so nothing was blocked.
+**Resolved:** the `v0.2.1` `.so` carries `SONAME=libcorvid.so`
+(re-verified on the published x86_64-linux archive); kept here for the
+record.

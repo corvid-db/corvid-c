@@ -29,7 +29,7 @@ Requirements: a C11 compiler, CMake ≥ 3.16, and one of
 `curl` + `shasum`/`sha256sum` (macOS/Linux) or PowerShell 5+ (Windows).
 
 ```sh
-./fetch.sh                     # download + verify corvid v0.2.0 into deps/
+./fetch.sh                     # download + verify corvid v0.2.1 into deps/
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ctest --test-dir build --output-on-failure   # the golden suite (256 lines)
@@ -62,23 +62,16 @@ corvid_collection_free(docs);
 corvid_close(db);
 ```
 
-## macOS note (v0.2.0 artifact defect)
+## macOS note (v0.2.0 artifact defect — resolved in v0.2.1)
 
-The v0.2.0 darwin dylibs ship with the release CI runner's absolute path
-as their install name, so a binary linked against them aborts at launch
-with `Library not loaded: /Users/runner/work/...`. This is a defect in
-the published artifacts, tracked as finding F1 in
-[docs/PLAN.md](docs/PLAN.md) and against the engine repo — corvid-c does
-not patch around it (the macOS CI legs run it visibly red). If you need
-the v0.2.0 darwin artifacts today, fix your own downloaded copy:
-
-```sh
-install_name_tool -id @rpath/libcorvid.dylib deps/corvid-ffi-v0.2.0-*/libcorvid.dylib
-```
-
-Everything else — header, ABI, golden fixtures — is verified consistent
-(256/256 once the dylib is loadable). Linux and Windows artifacts are
-unaffected.
+The v0.2.0 darwin dylibs shipped with the release CI runner's absolute
+path as their install name, so binaries linked against them aborted at
+launch. corvid-c caught this (finding F1 in
+[docs/PLAN.md](docs/PLAN.md)), the engine fixed its release pipeline
+(commit `edc1bc0`), and **v0.2.1 — the current pin — is clean**:
+`otool -D` shows `@rpath/libcorvid.dylib`, and the golden suite runs
+256/256 with no workarounds. v0.2.1's Linux `.so` also gained its
+SONAME (finding F2, likewise resolved).
 
 ## Installing (system use)
 
@@ -92,7 +85,7 @@ pkg-config --cflags --libs corvid
 ## Versioning
 
 The engine pin lives in one variable in the fetch scripts
-(`CORVID_VERSION=v0.2.0`). Artifacts are always taken from that exact
+(`CORVID_VERSION=v0.2.1`). Artifacts are always taken from that exact
 tag's GitHub release and sha256-verified; `deps/` is never committed.
 
 ## License
