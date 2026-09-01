@@ -7,7 +7,7 @@ the golden fixtures shipped in every release archive — agree with each other
 and drive a real C program to the same verdicts the engine's own suite
 produces.
 
-Engine repo: `i-rocky/corvid` (read-only upstream; never a submodule, never
+Engine repo: `corvid-db/corvid` (read-only upstream; never a submodule, never
 vendored here).
 
 ## The locked rule: golden port BEFORE ergonomic sugar
@@ -32,7 +32,7 @@ CI on all platforms does any wrapper-API work begin.
   (`CORVID_VERSION`) and is stamped into `deps/version.txt`; CMake reads
   the stamp, never guesses.
 - **Artifacts come from the tag's GitHub release**, not from a local build
-  of the engine: `https://github.com/i-rocky/corvid/releases/download/<tag>/…`,
+  of the engine: `https://github.com/corvid-db/corvid/releases/download/<tag>/…`,
   verified against the release's `checksums.txt` (sha256) before anything
   is extracted or used.
 - **No vendored binaries in git.** `deps/` (the extracted engine artifacts)
@@ -42,7 +42,7 @@ CI on all platforms does any wrapper-API work begin.
   only; the build is offline-first once fetch has run.
 - **Published-artifact defects are findings, not patches.** If the released
   header/dylib/fixtures disagree in a way that blocks this repo, we stop
-  and report upstream (`i-rocky/corvid`). We never carry a local header
+  and report upstream (`corvid-db/corvid`). We never carry a local header
   patch or fixture edit to work around a bad artifact.
 
 ## Phase C1 (this bootstrap) — scope

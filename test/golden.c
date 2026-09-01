@@ -1,5 +1,5 @@
 /* golden.c — the STANDALONE golden-suite harness, corvid-c's port of the
- * engine's reference implementation (i-rocky/corvid,
+ * engine's reference implementation (corvid-db/corvid,
  * crates/corvid-ffi/c/smoke.c, MIT).
  *
  * Same job as upstream, different moment of truth: the engine's harness

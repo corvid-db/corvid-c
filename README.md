@@ -1,6 +1,6 @@
 # corvid-c
 
-The canonical C consumer of [corvid](https://github.com/i-rocky/corvid) —
+The canonical C consumer of [corvid](https://github.com/corvid-db/corvid) —
 an embedded database with a typed C ABI. This repo exists to prove,
 continuously and outside the engine's own repository, that corvid's
 **published FFI artifacts** (the platform cdylib, `corvid.h`, and the
