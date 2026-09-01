@@ -127,6 +127,12 @@ if(UNIX AND NOT APPLE)
     target_link_libraries(golden PRIVATE m) # libm for the harness's math
 endif()
 
+# ---- the frozen error-code table (docs/SURFACE.tsv: corvid::Error rows) ---
+# Compile-time proof that every engine Error variant maps to its documented
+# frozen code in the shipped corvid.h (see test/errcodes.c).
+add_executable(errcodes test/errcodes.c)
+corvid_consumer(errcodes)
+
 file(GLOB CORVID_FIXTURES "${CORVID_ROOT}/golden/*.txt")
 list(SORT CORVID_FIXTURES)
 if(NOT CORVID_FIXTURES)
@@ -144,6 +150,7 @@ foreach(fixture ${CORVID_FIXTURES})
 endforeach()
 message(STATUS "corvid-c: golden suite = ${CORVID_FIXTURES}")
 
+add_test(NAME errcodes COMMAND errcodes)
 add_test(NAME demo COMMAND demo)
 foreach(example IN LISTS CORVID_EXAMPLES)
     add_test(NAME example_${example} COMMAND example_${example})

@@ -37,7 +37,7 @@ system CMake — the oldest any supported platform ships), and one of
 `curl` + `shasum`/`sha256sum` (macOS/Linux) or PowerShell 5+ (Windows).
 
 ```sh
-./fetch.sh                     # download + verify corvid v0.2.1 into deps/
+./fetch.sh                     # download + verify corvid v0.2.2 into deps/
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ctest --test-dir build --output-on-failure   # golden suite + demo + examples
@@ -77,9 +77,9 @@ The v0.2.0 darwin dylibs shipped with the release CI runner's absolute
 path as their install name, so binaries linked against them aborted at
 launch. corvid-c caught this (finding F1 in
 [docs/PLAN.md](docs/PLAN.md)), the engine fixed its release pipeline
-(commit `edc1bc0`), and **v0.2.1 — the current pin — is clean**:
+(commit `edc1bc0`), and **v0.2.2 — the current pin — is clean**:
 `otool -D` shows `@rpath/libcorvid.dylib`, and the golden suite runs
-256/256 with no workarounds. v0.2.1's Linux `.so` also gained its
+256/256 with no workarounds. v0.2.2's Linux `.so` also carries its
 SONAME (finding F2, likewise resolved).
 
 ## Installing (system use)
@@ -91,10 +91,21 @@ SONAME (finding F2, likewise resolved).
 pkg-config --cflags --libs corvid
 ```
 
+## Surface manifest (docs/SURFACE.tsv)
+
+Every construct of the engine's public surface (the radar-enforced list the
+engine publishes as `scripts/bindings/surface.tsv` at each release tag) is
+resolved in `docs/SURFACE.tsv`: the ABI symbol(s) exposing it plus the test
+that proves it (golden fixture line references), or `N/A` + reason where the
+v1 ABI deliberately does not expose it (FFI.md §9). `scripts/surface-gate.sh`
+fails CI when a line is unresolved, a cell is empty, or the N/A count drifts
+from the committed baseline — so an engine pin bump that changes the surface
+lands in this gate, not in a user's bug report.
+
 ## Versioning
 
 The engine pin lives in one variable in the fetch scripts
-(`CORVID_VERSION=v0.2.1`). Artifacts are always taken from that exact
+(`CORVID_VERSION=v0.2.2`). Artifacts are always taken from that exact
 tag's GitHub release and sha256-verified; `deps/` is never committed.
 
 ## License
