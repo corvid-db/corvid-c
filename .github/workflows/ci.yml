@@ -2,9 +2,12 @@
 #
 # Per platform: fetch + sha256-verify the pinned release artifacts, build
 # offline against deps/, run the golden-suite port (one ctest per fixture,
-# 256 executable lines total) and the demo. A Linux sanitizer job builds
-# the golden port with ASan+UBSan+LSan — the harness frees every handle
-# on its creation path, so the expectation is zero leaks.
+# 256 executable lines total), the demo, and the examples tour (six
+# runnable programs — quickstart, hybrid, vector-index, text-search,
+# graph, geo — each also a ctest). A Linux sanitizer job builds the
+# golden port and the examples with ASan+UBSan+LSan — the harness and
+# every example free every handle on their creation path, so the
+# expectation is zero leaks.
 #
 # Every leg is required-green: the v0.2.0 darwin install-name defect
 # (docs/PLAN.md, finding F1) was fixed upstream and re-pinned in v0.2.1.
@@ -48,7 +51,7 @@ jobs:
       - name: Build
         run: cmake --build build --config Release --parallel
 
-      - name: Golden suite + demo (ctest)
+      - name: Golden suite + demo + examples (ctest)
         run: ctest --test-dir build -C Release --output-on-failure
 
       - name: Run the demo
@@ -60,10 +63,23 @@ jobs:
             ./build/bin/demo
           fi
 
+      - name: Run the examples tour
+        shell: bash
+        run: |
+          for ex in quickstart hybrid vector_index text_search graph geo; do
+            echo "== example_${ex} =="
+            if [ "$RUNNER_OS" = "Windows" ]; then
+              ./build/bin/Release/example_${ex}.exe
+            else
+              ./build/bin/example_${ex}
+            fi
+          done
+
   sanitizer:
-    # ASan + UBSan + LSan on Linux: the golden port must run the full
-    # suite leak-free (every handle freed on its creation path — the
-    # same zero-leak expectation the engine's sanitized smoke run has).
+    # ASan + UBSan + LSan on Linux: the golden port and the examples
+    # tour must run leak-free (every handle freed on its creation path —
+    # the same zero-leak expectation the engine's sanitized smoke run
+    # has).
     name: sanitizer (linux, asan+lsan)
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -85,5 +101,5 @@ jobs:
       - name: Build
         run: cmake --build build --parallel
 
-      - name: Golden suite + demo under sanitizers
+      - name: Golden suite + demo + examples under sanitizers
         run: ctest --test-dir build --output-on-failure

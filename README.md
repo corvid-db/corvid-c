@@ -24,8 +24,9 @@ author would — no engine checkout, no vendored binaries, no FetchContent.
 | Path | What it is |
 | --- | --- |
 | `fetch.sh` / `fetch.ps1` | Download the pinned release archive for the host platform, verify it against the release's `checksums.txt` (sha256), extract into gitignored `deps/` |
-| `CMakeLists.txt` | Offline-first build: consumes `deps/`, builds the demo and the golden-suite port, installs a `corvid.pc` |
+| `CMakeLists.txt` | Offline-first build: consumes `deps/`, builds the demo, the examples tour, and the golden-suite port, installs a `corvid.pc` |
 | `examples/demo.c` | A small idiomatic consumer: open, insert, query, print (22 symbols) |
+| `examples/{quickstart,hybrid,vector_index,text_search,graph,geo}.c` | The examples tour — one runnable program per concept (also ctests): the README quickstart, hybrid RRF+MMR, the three vector-index families vs exact, BM25 incl. CJK, graph + delete cascade, geo radius/bbox/nearest |
 | `test/golden.c` | The golden-suite port — replays the engine's 256-line fixture suite against the downloaded libcorvid; registered as ctest tests |
 | `docs/PLAN.md` | The binding's plan: golden port before ergonomic sugar, binding rules, phase scope |
 
@@ -39,8 +40,9 @@ system CMake — the oldest any supported platform ships), and one of
 ./fetch.sh                     # download + verify corvid v0.2.1 into deps/
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
-ctest --test-dir build --output-on-failure   # the golden suite (256 lines)
+ctest --test-dir build --output-on-failure   # golden suite + demo + examples
 ./build/bin/demo                              # open → insert → query → print
+./build/bin/example_hybrid                    # the flagship hybrid query
 ```
 
 Windows (PowerShell): `./fetch.ps1`, then the same CMake steps
