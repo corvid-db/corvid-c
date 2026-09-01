@@ -9,6 +9,12 @@ consumer: it fetches a pinned release, verifies its checksums, and drives
 the downloaded library through a full port of the engine's golden test
 suite.
 
+**Documentation:** the [corvid docs site](https://corvid-db.github.io/docs/)
+is canonical — this binding has its own
+[corvid-c page](https://corvid-db.github.io/docs/bindings/corvid-c/), and the
+[C ABI section](https://corvid-db.github.io/docs/ffi/) documents every
+symbol this repo links (handles, ownership, errors, threading).
+
 Its role in the bindings program is **reference consumer**: everything
 here links the release artifacts exactly the way a third-party binding
 author would — no engine checkout, no vendored binaries, no FetchContent.
