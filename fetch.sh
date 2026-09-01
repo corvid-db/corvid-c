@@ -9,7 +9,8 @@
 #   - deps/ is gitignored — no vendored binaries, ever.
 #
 # Deterministic + idempotent: re-running with the same pin is a no-op;
-# changing the pin discards stale extracted versions first.
+# stale engine versions (extracted dirs and old tarballs) are always
+# discarded.
 
 set -euo pipefail
 
@@ -38,6 +39,16 @@ EXTRACTED="$ROOT/deps/corvid-ffi-${CORVID_VERSION}-${TARGET}"
 echo "fetch: corvid ${CORVID_VERSION} for ${TARGET}"
 
 mkdir -p "$DL" "$ROOT/deps"
+
+# ---- stale-version cleanup: always discard anything not the current pin --
+# CMake's configure error tells the user to re-run fetch because "it
+# discards stale versions and keeps exactly one" — so actually do that on
+# every run, not only when we're about to download. Old release tarballs
+# in deps/dl are pruned too, so they don't accumulate across pin bumps.
+find "$ROOT/deps" -maxdepth 1 -type d -name 'corvid-ffi-*' \
+    ! -name "corvid-ffi-${CORVID_VERSION}-${TARGET}" -exec rm -rf {} +
+find "$DL" -maxdepth 1 -type f -name 'corvid-ffi-*.tar.gz' \
+    ! -name "$ARCHIVE" -exec rm -f {} +
 
 # ---- download checksums + (if needed) the archive ----------------------
 curl -fsSL -o "$DL/checksums.txt" "$BASE_URL/checksums.txt"
@@ -69,12 +80,14 @@ else
     fi
     echo "fetch: sha256 ok ($ACTUAL)"
 
-    # ---- extract: drop stale engine versions, keep exactly one ---------
-    rm -rf "$ROOT"/deps/corvid-ffi-*
+    # ---- extract --------------------------------------------------------
     tar xzf "$DL/$ARCHIVE" -C "$ROOT/deps"
 fi
 
-if [ ! -f "$EXTRACTED/corvid.h" ] || [ ! -f "$EXTRACTED/libcorvid.dylib" ] && [ ! -f "$EXTRACTED/libcorvid.so" ]; then
+# Required: corvid.h always; plus the cdylib for this platform (dylib on
+# macOS, .so on Linux). Parentheses matter — without them && binds tighter
+# than || and the corvid.h check goes inert on Linux.
+if [ ! -f "$EXTRACTED/corvid.h" ] || ([ ! -f "$EXTRACTED/libcorvid.dylib" ] && [ ! -f "$EXTRACTED/libcorvid.so" ]); then
     echo "fetch: $EXTRACTED is missing corvid.h / the cdylib — bad archive?" >&2
     exit 1
 fi

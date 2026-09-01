@@ -25,7 +25,7 @@ author would — no engine checkout, no vendored binaries, no FetchContent.
 | --- | --- |
 | `fetch.sh` / `fetch.ps1` | Download the pinned release archive for the host platform, verify it against the release's `checksums.txt` (sha256), extract into gitignored `deps/` |
 | `CMakeLists.txt` | Offline-first build: consumes `deps/`, builds the demo and the golden-suite port, installs a `corvid.pc` |
-| `examples/demo.c` | A small idiomatic consumer: open, insert, query, print (~15 symbols) |
+| `examples/demo.c` | A small idiomatic consumer: open, insert, query, print (22 symbols) |
 | `test/golden.c` | The golden-suite port — replays the engine's 256-line fixture suite against the downloaded libcorvid; registered as ctest tests |
 | `docs/PLAN.md` | The binding's plan: golden port before ergonomic sugar, binding rules, phase scope |
 

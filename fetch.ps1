@@ -8,7 +8,8 @@
 #   - deps/ is gitignored -- no vendored binaries, ever.
 #
 # Deterministic + idempotent: re-running with the same pin is a no-op;
-# changing the pin discards stale extracted versions first.
+# stale engine versions (extracted dirs and old archives) are always
+# discarded.
 
 $ErrorActionPreference = "Stop"
 
@@ -35,6 +36,14 @@ Write-Host "fetch: corvid $CorvidVersion for $Target"
 New-Item -ItemType Directory -Force -Path $Dl  | Out-Null
 New-Item -ItemType Directory -Force -Path $Deps | Out-Null
 
+# ---- stale-version cleanup: always discard anything not the current pin --
+# CMake's configure error tells the user to re-run fetch because "it
+# discards stale versions and keeps exactly one" — so actually do that on
+# every run, not only when we're about to download.
+Get-ChildItem -Path $Deps -Directory -Filter "corvid-ffi-*" |
+    Where-Object { $_.Name -ne "corvid-ffi-$CorvidVersion-$Target" } |
+    Remove-Item -Recurse -Force
+
 # ---- download checksums + (if needed) the archive ------------------------
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Invoke-WebRequest -Uri "$BaseUrl/checksums.txt" -OutFile (Join-Path $Dl "checksums.txt")
@@ -57,9 +66,7 @@ if (Test-Path $Extracted) {
     }
     Write-Host "fetch: sha256 ok ($Actual)"
 
-    # ---- extract: drop stale engine versions, keep exactly one ----------
-    Get-ChildItem -Path $Deps -Directory -Filter "corvid-ffi-*" |
-        Remove-Item -Recurse -Force
+    # ---- extract ----------------------------------------------------------
     Expand-Archive -Path $ArchivePath -DestinationPath $Deps
 }
 
