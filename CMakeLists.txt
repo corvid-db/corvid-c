@@ -6,7 +6,11 @@
 # deps/ — the cdylib, corvid.h, and the golden fixtures that ship inside
 # the pinned tag's archive.
 
-cmake_minimum_required(VERSION 3.16)
+# Floor 3.28 = Ubuntu 24.04 LTS system CMake (the oldest toolchain any
+# supported platform or CI runner ships); per the bindings toolchain
+# policy (engine scripts/bindings/README.md) there is no compat base to
+# protect, so the floor stays modern.
+cmake_minimum_required(VERSION 3.28)
 project(corvid-c VERSION 0.1.0 LANGUAGES C)
 
 # ---- locate the fetched engine artifacts (deps/) ------------------------
@@ -85,7 +89,10 @@ endfunction()
 if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options(-Wall -Wextra)
 elseif(MSVC)
-    add_compile_options(/W3)
+    # /utf-8: the examples' CJK strings are UTF-8 in the source and
+    # must reach the engine as UTF-8 bytes (MSVC otherwise transcodes
+    # string literals to the local codepage).
+    add_compile_options(/W3 /utf-8)
 endif()
 
 # One predictable home for the executables (multi-config generators
@@ -95,6 +102,18 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/bin")
 # ---- the demo (examples/demo.c) ------------------------------------------
 add_executable(demo examples/demo.c)
 corvid_consumer(demo)
+
+# ---- the examples tour (examples/<name>.c) ---------------------------------
+# One runnable program per concept — quickstart, hybrid (RRF+MMR),
+# vector-index families, text search (incl. CJK), graph + delete
+# cascade, geo — each also registered as a ctest so CI executes the
+# whole tour on every platform (and under the sanitizer job: every
+# example frees every handle it creates).
+set(CORVID_EXAMPLES quickstart hybrid vector_index text_search graph geo)
+foreach(example IN LISTS CORVID_EXAMPLES)
+    add_executable(example_${example} examples/${example}.c)
+    corvid_consumer(example_${example})
+endforeach()
 
 # ---- the golden-suite port (test/golden.c) --------------------------------
 # The core deliverable: the engine harness, verbatim, driving the
@@ -126,6 +145,9 @@ endforeach()
 message(STATUS "corvid-c: golden suite = ${CORVID_FIXTURES}")
 
 add_test(NAME demo COMMAND demo)
+foreach(example IN LISTS CORVID_EXAMPLES)
+    add_test(NAME example_${example} COMMAND example_${example})
+endforeach()
 
 # ---- install (system use) + pkg-config ------------------------------------
 string(REGEX REPLACE "^v" "" CORVID_PC_VERSION "${CORVID_VERSION}")

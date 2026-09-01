@@ -31,7 +31,8 @@ author would — no engine checkout, no vendored binaries, no FetchContent.
 
 ## Quick start
 
-Requirements: a C11 compiler, CMake ≥ 3.16, and one of
+Requirements: a C11 compiler, CMake ≥ 3.28 (the Ubuntu 24.04 LTS
+system CMake — the oldest any supported platform ships), and one of
 `curl` + `shasum`/`sha256sum` (macOS/Linux) or PowerShell 5+ (Windows).
 
 ```sh
