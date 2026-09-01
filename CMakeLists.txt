@@ -116,8 +116,12 @@ endif()
 foreach(fixture ${CORVID_FIXTURES})
     get_filename_component(stem "${fixture}" NAME_WE)
     set(workdir "${CMAKE_CURRENT_BINARY_DIR}/scratch/${stem}")
-    file(MAKE_DIRECTORY "${workdir}")
-    add_test(NAME golden_${stem} COMMAND golden "${workdir}" "${fixture}")
+    # Fresh workdir per run via the driver — the port of the engine
+    # driver's per-run tempdir (test/run_fixture.cmake).
+    add_test(NAME golden_${stem}
+        COMMAND "${CMAKE_COMMAND}" -P
+                "${CMAKE_CURRENT_SOURCE_DIR}/test/run_fixture.cmake"
+                $<TARGET_FILE:golden> "${workdir}" "${fixture}")
 endforeach()
 message(STATUS "corvid-c: golden suite = ${CORVID_FIXTURES}")
 
