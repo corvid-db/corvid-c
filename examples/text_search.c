@@ -10,11 +10,10 @@
  * matches by its bigrams — "城市" (city) matches both city notes,
  * "数据库" (database) matches the ML note.
  *
- * Note on phrase matching: the engine's native (Rust) API also has a
- * positional `phrase_search` (adjacent-token windows over stored
- * positions); the C ABI v1 exposes the BM25 source only, so positional
- * semantics are beyond this binding's surface — this example shows the
- * bag-of-words ranking that IS the ABI contract.
+ * Phrase matching: engine v0.3.0 added the DIRECT positional
+ * `corvid_phrase_search` to the ABI (consecutive in-order analyzed
+ * tokens, stop words collapsing out of adjacency); the row score is
+ * the BM25 phrase sum, not the builder's fused RRF scale.
  *
  * Build/run: CMake builds this as `example_text_search`; CI runs it as
  * a ctest on every platform (built with /utf-8 under MSVC).
@@ -41,6 +40,28 @@ static void put_note(corvid_coll *notes, const char *key, const char *body) {
         doc, "body", 4, corvid_value_text(body, strlen(body))));
     must("insert", corvid_insert(notes, (const uint8_t *)key, strlen(key), doc));
     corvid_value_free(doc);
+}
+
+static void phrase(corvid_coll *notes, const char *q, const char *label) {
+    corvid_rows *rows = corvid_phrase_search(notes, "body", 4, q, strlen(q), 3);
+    if (!rows) {
+        size_t len = 0;
+        const char *msg = corvid_last_error_message(&len);
+        fprintf(stderr, "text_search: phrase_search failed: %.*s\n", (int)len,
+                msg ? msg : "?");
+        exit(1);
+    }
+    printf("%-28s ->", label);
+    for (;;) {
+        const uint8_t *key = NULL;
+        size_t key_len = 0;
+        const corvid_value *doc = NULL;
+        float score = 0.0f;
+        if (corvid_rows_next(rows, &key, &key_len, &doc, &score) != 1) break;
+        printf(" %.*s(%.6f)", (int)key_len, key, (double)score);
+    }
+    printf("\n");
+    corvid_rows_free(rows);
 }
 
 static void search(corvid_coll *notes, const char *query, const char *label) {
@@ -87,6 +108,10 @@ int main(void) {
     search(notes, "quick dog", "bm25 \"quick dog\":");
     search(notes, "城市", "bm25 CJK 城市 (city):");
     search(notes, "数据库", "bm25 CJK 数据库 (database):");
+
+    phrase(notes, "fox jumps over", "phrase \"fox jumps over\":");
+    phrase(notes, "over jumps fox", "phrase reversed (no match):");
+    phrase(notes, "leaps over a sleeping", "phrase stop words collapsed:");
 
     corvid_collection_free(notes);
     must("close", corvid_close(db));

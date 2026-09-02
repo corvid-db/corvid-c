@@ -15,7 +15,7 @@ vendored here).
 Inherited from the bindings program's master plan and non-negotiable:
 
 > **A binding opens with the golden-suite port.** The engine's golden
-> fixtures (256 executable lines across 8 files) are the contract; a
+> fixtures (267 executable lines across 8 files) are the contract; a
 > binding that wraps the ABI before it can replay the contract is building
 > on unverified ground. No ergonomic sugar ships until the port is green
 > against a tagged release's published artifacts.

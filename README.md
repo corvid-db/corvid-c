@@ -27,7 +27,7 @@ author would — no engine checkout, no vendored binaries, no FetchContent.
 | `CMakeLists.txt` | Offline-first build: consumes `deps/`, builds the demo, the examples tour, and the golden-suite port, installs a `corvid.pc` |
 | `examples/demo.c` | A small idiomatic consumer: open, insert, query, print (22 symbols) |
 | `examples/{quickstart,hybrid,vector_index,text_search,graph,geo}.c` | The examples tour — one runnable program per concept (also ctests): the README quickstart, hybrid RRF+MMR, the three vector-index families vs exact, BM25 incl. CJK, graph + delete cascade, geo radius/bbox/nearest |
-| `test/golden.c` | The golden-suite port — replays the engine's 256-line fixture suite against the downloaded libcorvid; registered as ctest tests |
+| `test/golden.c` | The golden-suite port — replays the engine's 267-line fixture suite against the downloaded libcorvid; registered as ctest tests |
 | `docs/PLAN.md` | The binding's plan: golden port before ergonomic sugar, binding rules, phase scope |
 
 ## Quick start
@@ -79,7 +79,8 @@ launch. corvid-c caught this (finding F1 in
 [docs/PLAN.md](docs/PLAN.md)), the engine fixed its release pipeline
 (commit `edc1bc0`), and **v0.3.0 — the current pin — is clean**:
 `otool -D` shows `@rpath/libcorvid.dylib`, and the golden suite runs
-256/256 with no workarounds. v0.3.0's Linux `.so` also carries its
+267/267 with no workarounds (the v0.3.0 fixtures added the
+VMAP_KEYS/GET_KEYS/PHRASE lines). v0.3.0's Linux `.so` also carries its
 SONAME (finding F2, likewise resolved).
 
 ## Installing (system use)
