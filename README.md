@@ -17,18 +17,10 @@ symbol this repo links (handles, ownership, errors, threading).
 
 Its role in the bindings program is **reference consumer**: everything
 here links the release artifacts exactly the way a third-party binding
-author would — no engine checkout, no vendored binaries, no FetchContent.
-
-## What's inside
-
-| Path | What it is |
-| --- | --- |
-| `fetch.sh` / `fetch.ps1` | Download the pinned release archive for the host platform, verify it against the release's `checksums.txt` (sha256), extract into gitignored `deps/` |
-| `CMakeLists.txt` | Offline-first build: consumes `deps/`, builds the demo, the examples tour, and the golden-suite port, installs a `corvid.pc` |
-| `examples/demo.c` | A small idiomatic consumer: open, insert, query, print (22 symbols) |
-| `examples/{quickstart,hybrid,vector_index,text_search,graph,geo}.c` | The examples tour — one runnable program per concept (also ctests): the README quickstart, hybrid RRF+MMR, the three vector-index families vs exact, BM25 incl. CJK, graph + delete cascade, geo radius/bbox/nearest |
-| `test/golden.c` | The golden-suite port — replays the engine's 267-line fixture suite against the downloaded libcorvid; registered as ctest tests |
-| `docs/PLAN.md` | The binding's plan: golden port before ergonomic sugar, binding rules, phase scope |
+author would — no engine checkout, no vendored binaries, no
+FetchContent. The golden-suite port replays the engine's full 267-line
+fixture suite against the downloaded library on every CI run, and the
+examples tour is one runnable program per concept (also ctests).
 
 ## Quick start
 
@@ -71,18 +63,6 @@ corvid_collection_free(docs);
 corvid_close(db);
 ```
 
-## macOS note (v0.2.0 artifact defect — resolved in v0.2.1)
-
-The v0.2.0 darwin dylibs shipped with the release CI runner's absolute
-path as their install name, so binaries linked against them aborted at
-launch. corvid-c caught this (finding F1 in
-[docs/PLAN.md](docs/PLAN.md)), the engine fixed its release pipeline
-(commit `edc1bc0`), and **v0.4.0 — the current pin — is clean**:
-`otool -D` shows `@rpath/libcorvid.dylib`, and the golden suite runs
-267/267 with no workarounds (the v0.3.0 fixtures added the
-VMAP_KEYS/GET_KEYS/PHRASE lines; byte-identical at v0.4.0). v0.4.0's Linux
-`.so` also carries its SONAME (finding F2, likewise resolved).
-
 ## Installing (system use)
 
 `cmake --install build` installs `corvid.h`, the library, and a
@@ -107,7 +87,10 @@ lands in this gate, not in a user's bug report.
 
 The engine pin lives in one variable in the fetch scripts
 (`CORVID_VERSION=v0.4.0`). Artifacts are always taken from that exact
-tag's GitHub release and sha256-verified; `deps/` is never committed.
+tag's GitHub release and sha256-verified (darwin dylibs carry
+`@rpath` install names, Linux `.so`s their SONAMEs — the engine's
+release pipeline verifies both before publishing; `deps/` is never
+committed).
 
 ## License
 
