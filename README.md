@@ -37,7 +37,7 @@ system CMake — the oldest any supported platform ships), and one of
 `curl` + `shasum`/`sha256sum` (macOS/Linux) or PowerShell 5+ (Windows).
 
 ```sh
-./fetch.sh                     # download + verify corvid v0.3.2 into deps/
+./fetch.sh                     # download + verify corvid v0.3.3 into deps/
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ctest --test-dir build --output-on-failure   # golden suite + demo + examples
@@ -77,10 +77,10 @@ The v0.2.0 darwin dylibs shipped with the release CI runner's absolute
 path as their install name, so binaries linked against them aborted at
 launch. corvid-c caught this (finding F1 in
 [docs/PLAN.md](docs/PLAN.md)), the engine fixed its release pipeline
-(commit `edc1bc0`), and **v0.3.2 — the current pin — is clean**:
+(commit `edc1bc0`), and **v0.3.3 — the current pin — is clean**:
 `otool -D` shows `@rpath/libcorvid.dylib`, and the golden suite runs
 267/267 with no workarounds (the v0.3.0 fixtures added the
-VMAP_KEYS/GET_KEYS/PHRASE lines; byte-identical at v0.3.2). v0.3.2's Linux
+VMAP_KEYS/GET_KEYS/PHRASE lines; byte-identical at v0.3.3). v0.3.3's Linux
 `.so` also carries its SONAME (finding F2, likewise resolved).
 
 ## Installing (system use)
@@ -106,7 +106,7 @@ lands in this gate, not in a user's bug report.
 ## Versioning
 
 The engine pin lives in one variable in the fetch scripts
-(`CORVID_VERSION=v0.3.2`). Artifacts are always taken from that exact
+(`CORVID_VERSION=v0.3.3`). Artifacts are always taken from that exact
 tag's GitHub release and sha256-verified; `deps/` is never committed.
 
 ## License
