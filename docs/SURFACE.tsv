@@ -184,7 +184,7 @@ corvid::store::ReadBatch::for_each	Lifecycle	N/A	N/A	engine low-level byte KV (S
 corvid::Hit	Vector search	MAPPED	row score from corvid_rows_next	golden:queries.txt:QVEC
 corvid::TextHit	Text search	MAPPED	row score from corvid_rows_next	golden:queries.txt:QTEXT
 corvid::Collection::text_search	Text search	N/A	N/A	direct search fn not exposed: the query builder replaces it (Query.vector()/text(); FFI.md §9)
-corvid::Collection::phrase_search	Text search	N/A	N/A	direct search fn not exposed: the query builder replaces it (Query.vector()/text(); FFI.md §9)
+corvid::Collection::phrase_search	Text search	MAPPED	corvid_phrase_search (the v0.3.0 direct positional fn) over the rows cursor	golden:queries.txt:PHRASE
 corvid::Collection::vector_search	Vector search	N/A	N/A	direct search fn not exposed: the query builder replaces it (Query.vector()/text(); FFI.md §9)
 corvid::text::Bm25Params	Text search	N/A	N/A	text-analysis internals; BM25 search is exposed via Query.text()
 corvid::text::Bm25Params::new	Text search	N/A	N/A	text-analysis internals; BM25 search is exposed via Query.text()

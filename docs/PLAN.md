@@ -15,7 +15,7 @@ vendored here).
 Inherited from the bindings program's master plan and non-negotiable:
 
 > **A binding opens with the golden-suite port.** The engine's golden
-> fixtures (256 executable lines across 8 files) are the contract; a
+> fixtures (267 executable lines across 8 files) are the contract; a
 > binding that wraps the ABI before it can replay the contract is building
 > on unverified ground. No ergonomic sugar ships until the port is green
 > against a tagged release's published artifacts.
@@ -28,7 +28,7 @@ CI on all platforms does any wrapper-API work begin.
 ## Binding rules (from the master plan)
 
 - **Pin EXACT engine tags.** One engine version at a time; today it is
-  `v0.2.2`. The pin lives in exactly one variable per fetch script
+  `v0.3.0`. The pin lives in exactly one variable per fetch script
   (`CORVID_VERSION`) and is stamped into `deps/version.txt`; CMake reads
   the stamp, never guesses.
 - **Artifacts come from the tag's GitHub release**, not from a local build
@@ -134,7 +134,7 @@ on the darwin legs, after copying the dylib into the staging dir, set
 (or pass `-C link-arg=-Wl,-install_name,@rpath/libcorvid.dylib` at build).
 
 **Resolution:** the engine landed the fix (commit `edc1bc0`) and shipped
-`v0.2.2`, whose darwin dylibs verify as `@rpath/libcorvid.dylib`
+`v0.3.0`, whose darwin dylibs verify as `@rpath/libcorvid.dylib`
 (`otool -D`, checked on the published aarch64-darwin archive). corvid-c
 re-pinned to `v0.2.1`; the darwin CI leg is required-green again with no
 `continue-on-error` and no env-var help — the golden suite now loads the
