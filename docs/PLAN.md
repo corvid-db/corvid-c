@@ -28,7 +28,7 @@ CI on all platforms does any wrapper-API work begin.
 ## Binding rules (from the master plan)
 
 - **Pin EXACT engine tags.** One engine version at a time; today it is
-  `v0.3.4`. The pin lives in exactly one variable per fetch script
+  `v0.4.0`. The pin lives in exactly one variable per fetch script
   (`CORVID_VERSION`) and is stamped into `deps/version.txt`; CMake reads
   the stamp, never guesses.
 - **Artifacts come from the tag's GitHub release**, not from a local build
@@ -134,7 +134,7 @@ on the darwin legs, after copying the dylib into the staging dir, set
 (or pass `-C link-arg=-Wl,-install_name,@rpath/libcorvid.dylib` at build).
 
 **Resolution:** the engine landed the fix (commit `edc1bc0`) and shipped
-it in `v0.2.1`; every pin since — the current `v0.3.4` included, whose
+it in `v0.2.1`; every pin since — the current `v0.4.0` included, whose
 published aarch64-darwin dylib verifies as `@rpath/libcorvid.dylib`
 (`otool -D`) — is clean. corvid-c
 re-pinned to `v0.2.1`; the darwin CI leg is required-green again with no
