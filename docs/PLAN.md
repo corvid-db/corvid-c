@@ -134,8 +134,9 @@ on the darwin legs, after copying the dylib into the staging dir, set
 (or pass `-C link-arg=-Wl,-install_name,@rpath/libcorvid.dylib` at build).
 
 **Resolution:** the engine landed the fix (commit `edc1bc0`) and shipped
-`v0.3.2`, whose darwin dylibs verify as `@rpath/libcorvid.dylib`
-(`otool -D`, checked on the published aarch64-darwin archive). corvid-c
+it in `v0.2.1`; every pin since — the current `v0.3.2` included, whose
+published aarch64-darwin dylib verifies as `@rpath/libcorvid.dylib`
+(`otool -D`) — is clean. corvid-c
 re-pinned to `v0.2.1`; the darwin CI leg is required-green again with no
 `continue-on-error` and no env-var help — the golden suite now loads the
 shipped dylib through the baked rpath alone. The evidence above is kept
