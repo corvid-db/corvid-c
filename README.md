@@ -79,9 +79,9 @@ launch. corvid-c caught this (finding F1 in
 [docs/PLAN.md](docs/PLAN.md)), the engine fixed its release pipeline
 (commit `edc1bc0`), and **v0.3.1 — the current pin — is clean**:
 `otool -D` shows `@rpath/libcorvid.dylib`, and the golden suite runs
-267/267 with no workarounds (the v0.3.1 fixtures added the
-VMAP_KEYS/GET_KEYS/PHRASE lines). v0.3.1's Linux `.so` also carries its
-SONAME (finding F2, likewise resolved).
+267/267 with no workarounds (the v0.3.0 fixtures added the
+VMAP_KEYS/GET_KEYS/PHRASE lines; byte-identical at v0.3.1). v0.3.1's Linux
+`.so` also carries its SONAME (finding F2, likewise resolved).
 
 ## Installing (system use)
 
