@@ -29,7 +29,7 @@ system CMake — the oldest any supported platform ships), and one of
 `curl` + `shasum`/`sha256sum` (macOS/Linux) or PowerShell 5+ (Windows).
 
 ```sh
-./fetch.sh                     # download + verify corvid v0.4.0 into deps/
+./fetch.sh                     # download + verify corvid v0.4.1 into deps/
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ctest --test-dir build --output-on-failure   # golden suite + demo + examples
@@ -86,7 +86,7 @@ lands in this gate, not in a user's bug report.
 ## Versioning
 
 The engine pin lives in one variable in the fetch scripts
-(`CORVID_VERSION=v0.4.0`). Artifacts are always taken from that exact
+(`CORVID_VERSION=v0.4.1`). Artifacts are always taken from that exact
 tag's GitHub release and sha256-verified (darwin dylibs carry
 `@rpath` install names, Linux `.so`s their SONAMEs — the engine's
 release pipeline verifies both before publishing; `deps/` is never
