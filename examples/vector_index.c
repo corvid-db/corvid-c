@@ -41,6 +41,7 @@ static void must(const char *what, corvid_status st) {
     }
 }
 
+/* docs:begin:vector_index */
 static void put_doc(corvid_coll *items, const char *key, const float *v) {
     corvid_value *doc = corvid_value_map_new();
     must("map_put v_mem", corvid_value_map_put(
@@ -138,3 +139,4 @@ int main(void) {
     remove(DB_FILE);
     return 0;
 }
+/* docs:end:vector_index */

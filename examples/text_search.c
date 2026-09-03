@@ -34,6 +34,7 @@ static void must(const char *what, corvid_status st) {
     }
 }
 
+/* docs:begin:text_search */
 static void put_note(corvid_coll *notes, const char *key, const char *body) {
     corvid_value *doc = corvid_value_map_new();
     must("map_put body", corvid_value_map_put(
@@ -117,3 +118,4 @@ int main(void) {
     must("close", corvid_close(db));
     return 0;
 }
+/* docs:end:text_search */

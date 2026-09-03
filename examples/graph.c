@@ -27,6 +27,7 @@ static void must(const char *what, corvid_status st) {
     }
 }
 
+/* docs:begin:graph */
 /* Print one `[a,b,c]` line from a key-set cursor (borrowed views),
  * naming the last error if the call failed. */
 static void print_strs(const char *label, corvid_strs *s) {
@@ -120,3 +121,4 @@ int main(void) {
     must("close", corvid_close(db));
     return 0;
 }
+/* docs:end:graph */

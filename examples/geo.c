@@ -33,6 +33,7 @@ static void must(const char *what, corvid_status st) {
     }
 }
 
+/* docs:begin:geo */
 static void put_place(corvid_coll *places, const char *key, double lat,
                       double lon) {
     corvid_value *doc = corvid_value_map_new();
@@ -91,3 +92,4 @@ int main(void) {
     must("close", corvid_close(db));
     return 0;
 }
+/* docs:end:geo */
